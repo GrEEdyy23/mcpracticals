@@ -1,0 +1,31 @@
+clear all;
+close all;
+clc;
+% Simulation Parameters
+M = 2; % BPSK
+Eb_N0_dB = 0:60; % SNR in dB
+Eb_N0 = 10.^(Eb_N0_dB/10); % SNR
+N = 10000; % number of bits
+% BPSK Modulation
+x = rand(1,N)>0.5; % random bit stream
+y = 2*x - 1; % BPSK modulation
+% Rayleigh Fading Channel
+h = (randn(1,N) + 1i*randn(1,N))/sqrt(2); % Rayleigh fading channel
+% Initialize BER
+BER = zeros(1,length(Eb_N0_dB));
+% Simulation
+for ii = 1:length(Eb_N0_dB)
+% Add noise
+n = (randn(1,N) + 1i*randn(1,N))/sqrt(2)*sqrt(1/(2*Eb_N0(ii)));
+r = h.*y + n; % received signal
+% Demodulation
+r_det = real(r) > 0; % decision detector
+% Calculate BER
+BER(ii) = sum(xor(x,r_det))/N;
+end
+% Plot BER vs SNR
+semilogy(Eb_N0_dB,BER,'-o');
+grid on;
+xlabel('SNR (dB)');
+ylabel('BER');
+title('BER vs SNR for BPSK over Rayleigh Fading Channel')
